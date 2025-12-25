@@ -46,11 +46,14 @@ def transform_to_jsonl(df, filepath, hislen=20):
     item_list = set()
     seqs = []
     with open(filepath, "w", encoding="utf-8") as f:
+        max = 0
         for row in df.iterrows():
             row_dict = row[1].to_dict()
             user = row_dict["user_id"]
             target = row_dict["parent_asin"]
             inter_his = row_dict["history"].split(' ')
+            if len(inter_his) > max:
+                max = len(inter_his)
             user_list.add(user)
             item_list.add(target)
             for item in inter_his:
@@ -58,6 +61,61 @@ def transform_to_jsonl(df, filepath, hislen=20):
             line = {'user_id': user, 'target_id': target, 'inter_history': inter_his[-hislen:]}
             seqs.append(line)
             f.write(json.dumps(line) + "\n")
+    print("max history length: " + str(max))
+    print("Successful write to " + filepath)
+    return user_list, item_list, seqs
+
+def transform_to_jsonl_with_session(df, filepath, hislen=20, session_gap_minutes=30, user_timestamp_history={}):
+    user_list = set()
+    item_list = set()
+    seqs = []
+    
+    session_gap_ms = session_gap_minutes * 60 * 1000
+    max_session_len = 0
+    
+    with open(filepath, "w", encoding="utf-8") as f:
+        max_his = 0
+        for row in df.iterrows():
+            row_dict = row[1].to_dict()
+            user = row_dict["user_id"]
+            target = row_dict["parent_asin"]
+            
+            # 和原版一致：直接 split，不过滤空字符串
+            inter_his = row_dict["history"].split(' ')
+            
+            if len(inter_his) > max_his:
+                max_his = len(inter_his)
+            user_list.add(user)
+            item_list.add(target)
+            for item in inter_his:
+                item_list.add(item)
+            
+            # --- 生成 Session ID ---
+            # 从预先收集的时间戳中获取，取前 len(inter_his) 个
+            history_times = user_timestamp_history.get(user, [])[:len(inter_his)]
+            session_ids = []
+            
+            if len(history_times) > 0:
+                current_session_id = 1
+                session_ids.append(current_session_id)
+                
+                for i in range(1, len(history_times)):
+                    time_diff = history_times[i] - history_times[i-1]
+                    if time_diff > session_gap_ms:
+                        current_session_id += 1
+                    session_ids.append(current_session_id)
+                    if current_session_id > max_session_len:
+                        max_session_len = current_session_id
+            else:
+                # 没有历史时间戳时，所有 item 都属于 session 1
+                session_ids = [1] * len(inter_his)
+            
+            line = {'user_id': user, 'target_id': target, 'inter_history': inter_his[-hislen:], 'session_ids': session_ids[-hislen:]}
+            seqs.append(line)
+            f.write(json.dumps(line) + "\n")
+    
+    print("max history length: " + str(max_his))
+    print("max session length: " + str(max_session_len))
     print("Successful write to " + filepath)
     return user_list, item_list, seqs
 
@@ -113,13 +171,24 @@ if __name__ == '__main__':
 
     n_action = train_csv.shape[0] + valid_csv.shape[0] + test_csv.shape[0]
 
+    # 先收集所有用户的时间戳（包括history为空的行）
+    user_timestamp_history = {}
+    for df in [train_csv, valid_csv, test_csv]:
+        for _, row in df.iterrows():
+            user = row["user_id"]
+            timestamp = float(row["timestamp"])
+            if user not in user_timestamp_history:
+                user_timestamp_history[user] = []
+            user_timestamp_history[user].append(timestamp)
+
+    # 再过滤 NaN（和原版一致）
     train_csv = train_csv[~train_csv["history"].isna()]
     valid_csv = valid_csv[~valid_csv["history"].isna()]
     test_csv = test_csv[~test_csv["history"].isna()]
     
-    users_1, items_1, train_seqs = transform_to_jsonl(train_csv, f"./dataset/{dataset}/{dataset}.train.jsonl", hislen=args.his_len)
-    users_2, items_2, valid_seqs = transform_to_jsonl(valid_csv, f"./dataset/{dataset}/{dataset}.valid.jsonl", hislen=args.his_len)
-    users_3, items_3, test_seqs = transform_to_jsonl(test_csv, f"./dataset/{dataset}/{dataset}.test.jsonl", hislen=args.his_len)
+    users_1, items_1, train_seqs = transform_to_jsonl_with_session(train_csv, f"./dataset/{dataset}/{dataset}.train.jsonl", hislen=args.his_len, user_timestamp_history=user_timestamp_history)
+    users_2, items_2, valid_seqs = transform_to_jsonl_with_session(valid_csv, f"./dataset/{dataset}/{dataset}.valid.jsonl", hislen=args.his_len, user_timestamp_history=user_timestamp_history)
+    users_3, items_3, test_seqs = transform_to_jsonl_with_session(test_csv, f"./dataset/{dataset}/{dataset}.test.jsonl", hislen=args.his_len, user_timestamp_history=user_timestamp_history)
 
     users, items = set(), set()
     users.update(users_1, users_2, users_3)
