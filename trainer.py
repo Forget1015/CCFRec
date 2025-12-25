@@ -84,6 +84,7 @@ class BaseTrainer(object):
         ensure_dir(self.ckpt_dir)
         self.best_score = 0
         self.best_ckpt = "best_model.pth"
+        self.start_epoch = 0
 
     def _build_optimizer(self):
         params = self.model.parameters()
@@ -201,10 +202,22 @@ class BaseTrainer(object):
             "best_score": self.best_score,
             "state_dict": self.model.state_dict(),
             "optimizer": self.optimizer.state_dict(),
+            "lr_scheduler": self.lr_scheduler.state_dict(),
         }
         torch.save(state, ckpt_path, pickle_protocol=4)
         if verbose:
             self.log(f"[Epoch {epoch}] Saving current: {ckpt_path}")
+
+    def resume_from_checkpoint(self, ckpt_path):
+        """从checkpoint恢复训练"""
+        checkpoint = torch.load(ckpt_path, map_location=self.device)
+        self.model.load_state_dict(checkpoint["state_dict"])
+        self.optimizer.load_state_dict(checkpoint["optimizer"])
+        if "lr_scheduler" in checkpoint:
+            self.lr_scheduler.load_state_dict(checkpoint["lr_scheduler"])
+        self.best_score = checkpoint.get("best_score", 0)
+        self.start_epoch = checkpoint.get("epoch", 0) + 1
+        self.log(f"Resumed from checkpoint: {ckpt_path}, starting from epoch {self.start_epoch}")
 
     def _generate_train_loss_output(self, epoch_idx, s_time, e_time, loss):
         train_loss_output = ("[Epoch %d] training [time: %.2fs, "
@@ -220,7 +233,7 @@ class BaseTrainer(object):
     def fit(self, verbose=True):
         cur_eval_step = 0
         stop = False
-        for epoch_idx in range(self.epochs):
+        for epoch_idx in range(self.start_epoch, self.epochs):
             # train
             training_start_time = time()
             train_loss = self._train_epoch(epoch_idx, verbose=verbose)

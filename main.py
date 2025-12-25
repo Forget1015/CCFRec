@@ -61,6 +61,8 @@ def parse_arguments():
     parser.add_argument("--ckpt_dir", type=str,
                         default="./myckpt/",
                         help="output directory for model")
+    parser.add_argument("--resume", type=str, default=None,
+                        help="checkpoint path to resume training")
     args, _ = parser.parse_known_args()
     return args
 
@@ -120,6 +122,9 @@ if __name__=="__main__":
         model.item_text_embedding[i].weight.data[1:] = torch.tensor(text_embs[i], dtype=torch.float32, device=device)
 
     trainer = CCFTrainer(args, model, train_data_loader, val_data_loader, test_data_loader, device)
+
+    if args.resume:
+        trainer.resume_from_checkpoint(args.resume)
 
     log(model, logger)
 
