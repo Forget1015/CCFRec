@@ -75,7 +75,27 @@ class SeqBaseModel(nn.Module):
         extended_attention_mask = extended_attention_mask.reshape(B, 1, L, L*code_level)
         extended_attention_mask = torch.where(extended_attention_mask, 0.0, -10000.0)
         return extended_attention_mask
-    
+
+class FourierAttention(nn.Module):
+    def __init__(self, hidden_size):
+        super().__init__()
+        self.hidden_size = hidden_size
+        self.freq_proj = nn.Linear(hidden_size, hidden_size)
+        
+    def forward(self, x):
+        B, L, H = x.shape
+        
+        # FFT
+        x_fft = torch.fft.rfft(x, dim=1, norm='ortho')
+        
+        # 频域注意力
+        freq_attn = torch.softmax(self.freq_proj(torch.abs(x_fft)), dim=1)
+        enhanced_fft = x_fft * freq_attn
+        
+        # IFFT
+        enhanced_x = torch.fft.irfft(enhanced_fft, n=L, dim=1, norm='ortho')
+        
+        return x + 0.1 * enhanced_x
 
 class CCFRec(SeqBaseModel):
     def __init__(self, args, dataset, index, device):
@@ -124,7 +144,7 @@ class CCFRec(SeqBaseModel):
                                                    for _ in range(self.text_num)])
         self.item_text_embedding.requires_grad_(False)
         
-        self.position_embedding = nn.Embedding(self.max_seq_length, self.embedding_size)
+        
 
         self.qformer = CrossAttTransformer(
             n_layers=self.n_layers_cross,
@@ -136,21 +156,11 @@ class CCFRec(SeqBaseModel):
             hidden_act=self.hidden_act,
             layer_norm_eps=self.layer_norm_eps,
         )
-        # print("无傅里叶")
         #------------------------------------------------------
-        # print("傅里叶")
-        self.item_gating = nn.Linear(self.embedding_size, 1)
-        self.fusion_gating = nn.Linear(self.embedding_size, 1)
-        self.complex_weight = nn.Parameter(torch.randn(1, self.max_seq_length // 2 + 1, self.embedding_size, 2, dtype=torch.float32) * 0.02)
-        self.item_embedding = nn.Embedding(
-            num_embeddings=self.n_items,  # 物品总数
-            embedding_dim=self.embedding_size,   # 嵌入维度
-            padding_idx=0  # 通常用0表示padding物品
-        )
-        self.dropout1 = nn.Dropout(self.hidden_dropout_prob)
-        self.LayerNorm = nn.LayerNorm(self.embedding_size)
-        self.context_gate = nn.Linear(self.embedding_size, 1)
+        self.fourier_attention = FourierAttention(self.embedding_size)
         #------------------------------------------------------
+
+        self.position_embedding = nn.Embedding(self.max_seq_length, self.embedding_size)
         self.transformer = Transformer(
             n_layers=self.n_layers,
             n_heads=self.n_heads,
@@ -165,6 +175,7 @@ class CCFRec(SeqBaseModel):
         self.dropout = nn.Dropout(self.hidden_dropout_prob)
         self.layer_norm = nn.LayerNorm(self.embedding_size, eps=self.layer_norm_eps)
 
+        #--------------------------------------------------------
         self.loss_fct = nn.CrossEntropyLoss(ignore_index=-100)
 
         # parameters initialization
@@ -181,27 +192,8 @@ class CCFRec(SeqBaseModel):
             module.weight.data.fill_(1.0)
         if isinstance(module, nn.Linear) and module.bias is not None:
             module.bias.data.zero_()
-    def contextual_convolution(self, item_emb, feature_emb):
-        """Sequence-Level Representation Fusion
-        """
-        feature_fft = torch.fft.rfft(feature_emb, dim=1, norm='ortho')
-        item_fft = torch.fft.rfft(item_emb, dim=1, norm='ortho')
 
-        # 动态调整complex_weight的大小以匹配FFT长度
-        fft_len = item_fft.shape[1]
-        complext_weight = torch.view_as_complex(self.complex_weight[:, :fft_len])
-        item_conv = torch.fft.irfft(item_fft * complext_weight, n = feature_emb.shape[1], dim = 1, norm = 'ortho')
-        fusion_conv = torch.fft.irfft(feature_fft * item_fft, n = feature_emb.shape[1], dim = 1, norm = 'ortho')
-
-        item_gate_w = self.item_gating(item_conv)
-        fusion_gate_w = self.fusion_gating(fusion_conv)
-
-        contextual_emb = 2 * (item_conv * torch.sigmoid(item_gate_w) + fusion_conv * torch.sigmoid(fusion_gate_w))
-        # ---------------------------这里加残差-----------------------------
-        residual = feature_emb
-        contextual_emb = self.dropout1(contextual_emb)   
-        contextual_emb = self.LayerNorm(contextual_emb + residual) 
-        return contextual_emb
+    
     def forward(self, item_seq, item_seq_len, code_seq, session_ids):
         
         B, L = item_seq.size(0), item_seq.size(1)
@@ -218,13 +210,10 @@ class CCFRec(SeqBaseModel):
         item_emb = item_seq_emb.mean(dim=1)+ query_seq_emb.mean(dim=1)  # [B*L, H]
         item_emb = item_emb.view(B, L, -1)
         # ------------------------------------------------------
-        # item_emb_original = item_emb
-        # item_emb_context = self.contextual_convolution(self.item_embedding(item_seq), item_emb_original)
-        # gate = torch.sigmoid(self.context_gate(item_emb_original))  # [B, L, 1]
-        # item_emb = gate * item_emb_context + (1 - gate) * item_emb_original
+        item_emb = self.fourier_attention(item_emb)
         # ------------------------------------------------------
         
-        
+        # ------------------------------------------------------
         item_pos_ids = torch.arange(
             item_seq.size(1), dtype=torch.long, device=item_seq.device
         )
@@ -240,7 +229,7 @@ class CCFRec(SeqBaseModel):
 
         item_seq_output = self.transformer(item_emb, item_emb, attention_mask)[-1]
         item_seq_output = self.gather_indexes(item_seq_output, item_seq_len-1)
-
+        # ------------------------------------------------------
         return item_seq_output, item_seq_emb
     
     def get_item_embedding(self,):
