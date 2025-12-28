@@ -85,7 +85,7 @@ python main.py \
     --embedding_size=128 \
     --hidden_size=512\
     --early_stop=100\
-    --log_dir="./logs/傅立叶"\
+    --log_dir="./logs/傅里叶"\
     --device=cuda:1
 
 python main.py \
