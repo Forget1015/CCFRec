@@ -210,7 +210,7 @@ class BaseTrainer(object):
 
     def resume_from_checkpoint(self, ckpt_path):
         """从checkpoint恢复训练"""
-        checkpoint = torch.load(ckpt_path, map_location=self.device)
+        checkpoint = torch.load(ckpt_path, map_location=self.device, weights_only=False)
         self.model.load_state_dict(checkpoint["state_dict"])
         self.optimizer.load_state_dict(checkpoint["optimizer"])
         if "lr_scheduler" in checkpoint:
@@ -284,7 +284,7 @@ class BaseTrainer(object):
 
         if load_best_model:
             checkpoint_file = model_file or os.path.join(self.ckpt_dir, self.best_ckpt)
-            checkpoint = torch.load(checkpoint_file, map_location=self.device)
+            checkpoint = torch.load(checkpoint_file, map_location=self.device, weights_only=False)
             self.model.load_state_dict(checkpoint["state_dict"], strict=False)
 
             message_output = "Loading model parameters from {}".format(
@@ -379,7 +379,7 @@ class CCFTrainer(BaseTrainer):
 
         if load_best_model:
             checkpoint_file = model_file or os.path.join(self.ckpt_dir, self.best_ckpt)
-            checkpoint = torch.load(checkpoint_file, map_location=self.device)
+            checkpoint = torch.load(checkpoint_file, map_location=self.device, weights_only=False)
             self.model.load_state_dict(checkpoint["state_dict"], strict=False)
 
             message_output = "Loading model parameters from {}".format(

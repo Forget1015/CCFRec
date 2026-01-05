@@ -84,7 +84,7 @@ class FrequencyAttention(nn.Module):
         self.dropout = nn.Dropout(dropout)
         self.layer_norm = nn.LayerNorm(hidden_size)
         # 可学习的融合系数，初始化为较小值
-        self.alpha = nn.Parameter(torch.tensor(0.1))
+        # self.alpha = nn.Parameter(torch.tensor(0.1))
         
     def forward(self, x):
         B, L, H = x.shape
@@ -96,8 +96,8 @@ class FrequencyAttention(nn.Module):
         enhanced = torch.fft.irfft(weighted_fft, n=L, dim=1, norm='ortho')
         
         # 用 sigmoid 限制在 [0, 1] 范围,alpha 不想要注释掉直接改成0.1即可
-        alpha = torch.sigmoid(self.alpha)
-        return self.layer_norm(x + self.dropout(enhanced * alpha))
+        # alpha = torch.sigmoid(self.alpha)
+        return self.layer_norm(x + self.dropout(enhanced * 0.1))
 
 class MultiScaleFrequencyFusion(nn.Module):
     def __init__(self, hidden_size, num_scales=3):
@@ -187,8 +187,8 @@ class CCFRec(SeqBaseModel):
         )
 
         #------------------------------------------------------
-        # self.fourier_attention = FrequencyAttention(self.embedding_size)
-        self.multiScale_frequency_fusion = MultiScaleFrequencyFusion(self.embedding_size)
+        self.fourier_attention = FrequencyAttention(self.embedding_size)
+        # self.multiScale_frequency_fusion = MultiScaleFrequencyFusion(self.embedding_size)
         #------------------------------------------------------
         # Hierarchical Transformer 组件（改进版）
         
@@ -432,8 +432,8 @@ class CCFRec(SeqBaseModel):
         item_emb = item_emb.view(B, L, -1)
 
         # ------------------------------------------------------
-        # item_emb = self.fourier_attention(item_emb)
-        item_emb = self.multiScale_frequency_fusion(item_emb)
+        item_emb = self.fourier_attention(item_emb)
+        # item_emb = self.multiScale_frequency_fusion(item_emb)
         # ------------------------------------------------------
         
         # 使用改进的层级Transformer
