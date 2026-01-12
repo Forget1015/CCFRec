@@ -79,3 +79,46 @@ Sun 11 Jan 2026 07:20:13 INFO  CCFRec(
   )
   (loss_fct): CrossEntropyLoss()
 )
+Sun 11 Jan 2026 08:25:28 INFO  [Epoch 2] training [time: 3914.77s, loss: 9.1201, mlm_loss: 4.4646, rec_loss: 7.7305, cl_loss: 0.1004, ]
+Sun 11 Jan 2026 08:28:12 INFO  [Epoch 2] Saving current: ./myckpt/Video_Games/Jan-11-2026_07-19-d0ed1b_mlm0.3_cl0.5_maskratio0.5_drop0.2_dpcross0.1/best_model.pth
+Sun 11 Jan 2026 08:28:12 INFO  [Epoch 2] Val Result: {'recall@5': 0.059295920305607736, 'ndcg@5': 0.037099680064440616, 'recall@10': 0.09511196471159325, 'ndcg@10': 0.048593948892287464}
+Sun 11 Jan 2026 09:33:36 INFO  [Epoch 3] training [time: 3924.53s, loss: 9.0164, mlm_loss: 4.3881, rec_loss: 7.6513, cl_loss: 0.0973, ]
+Sun 11 Jan 2026 09:36:30 INFO  [Epoch 3] Saving current: ./myckpt/Video_Games/Jan-11-2026_07-19-d0ed1b_mlm0.3_cl0.5_maskratio0.5_drop0.2_dpcross0.1/best_model.pth
+Sun 11 Jan 2026 09:36:30 INFO  [Epoch 3] Val Result: {'recall@5': 0.06115320487115088, 'ndcg@5': 0.038517653910344, 'recall@10': 0.0975179924442287, 'ndcg@10': 0.05020199318850559}
+Sun 11 Jan 2026 10:41:40 INFO  [Epoch 4] training [time: 3910.47s, loss: 8.9656, mlm_loss: 4.3334, rec_loss: 7.6171, cl_loss: 0.0971, ]
+Sun 11 Jan 2026 10:44:31 INFO  [Epoch 4] Saving current: ./myckpt/Video_Games/Jan-11-2026_07-19-d0ed1b_mlm0.3_cl0.5_maskratio0.5_drop0.2_dpcross0.1/best_model.pth
+Sun 11 Jan 2026 10:44:31 INFO  [Epoch 4] Val Result: {'recall@5': 0.06350646883771977, 'ndcg@5': 0.0403155797192985, 'recall@10': 0.10205567632595344, 'ndcg@10': 0.052671308265519155}
+Sun 11 Jan 2026 11:49:28 INFO  [Epoch 5] training [time: 3896.60s, loss: 8.9132, mlm_loss: 4.2928, rec_loss: 7.5776, cl_loss: 0.0954, ]
+Sun 11 Jan 2026 11:52:08 INFO  [Epoch 5] Saving current: ./myckpt/Video_Games/Jan-11-2026_07-19-d0ed1b_mlm0.3_cl0.5_maskratio0.5_drop0.2_dpcross0.1/best_model.pth
+Sun 11 Jan 2026 11:52:08 INFO  [Epoch 5] Val Result: {'recall@5': 0.06469892995082417, 'ndcg@5': 0.040910630906542254, 'recall@10': 0.10379688060615014, 'ndcg@10': 0.05347111450571883}
+Sun 11 Jan 2026 12:57:28 INFO  [Epoch 6] training [time: 3920.00s, loss: 8.8714, mlm_loss: 4.2632, rec_loss: 7.5449, cl_loss: 0.0951, ]
+Sun 11 Jan 2026 13:00:10 INFO  [Epoch 6] Val Result: {'recall@5': 0.0643295835883582, 'ndcg@5': 0.04040833902913529, 'recall@10': 0.10223507313057976, 'ndcg@10': 0.05256800943333905}
+Sun 11 Jan 2026 14:05:07 INFO  [Epoch 7] training [time: 3897.39s, loss: 8.8387, mlm_loss: 4.2406, rec_loss: 7.5191, cl_loss: 0.0947, ]
+Sun 11 Jan 2026 14:07:49 INFO  [Epoch 7] Saving current: ./myckpt/Video_Games/Jan-11-2026_07-19-d0ed1b_mlm0.3_cl0.5_maskratio0.5_drop0.2_dpcross0.1/best_model.pth
+Sun 11 Jan 2026 14:07:49 INFO  [Epoch 7] Val Result: {'recall@5': 0.06531098963719635, 'ndcg@5': 0.041272586417596714, 'recall@10': 0.10363858930795045, 'ndcg@10': 0.0535854422033559}
+Sun 11 Jan 2026 15:12:56 INFO  [Epoch 8] training [time: 3907.43s, loss: 8.8128, mlm_loss: 4.2222, rec_loss: 7.4989, cl_loss: 0.0945, ]
+Sun 11 Jan 2026 15:15:38 INFO  [Epoch 8] Saving current: ./myckpt/Video_Games/Jan-11-2026_07-19-d0ed1b_mlm0.3_cl0.5_maskratio0.5_drop0.2_dpcross0.1/best_model.pth
+Sun 11 Jan 2026 15:15:38 INFO  [Epoch 8] Val Result: {'recall@5': 0.06419239779658513, 'ndcg@5': 0.040802337224062665, 'recall@10': 0.10427175450074924, 'ndcg@10': 0.05370328279918909}
+Sun 11 Jan 2026 16:20:38 INFO  [Epoch 9] training [time: 3900.14s, loss: 8.7894, mlm_loss: 4.2073, rec_loss: 7.4799, cl_loss: 0.0947, ]
+Sun 11 Jan 2026 16:23:19 INFO  [Epoch 9] Saving current: ./myckpt/Video_Games/Jan-11-2026_07-19-d0ed1b_mlm0.3_cl0.5_maskratio0.5_drop0.2_dpcross0.1/best_model.pth
+Sun 11 Jan 2026 16:23:19 INFO  [Epoch 9] Val Result: {'recall@5': 0.06595470758320846, 'ndcg@5': 0.04143067619080798, 'recall@10': 0.10524260779637408, 'ndcg@10': 0.054058413228696596}
+Sun 11 Jan 2026 17:28:18 INFO  [Epoch 10] training [time: 3898.63s, loss: 8.7673, mlm_loss: 4.1945, rec_loss: 7.4616, cl_loss: 0.0947, ]
+Sun 11 Jan 2026 17:30:59 INFO  [Epoch 10] Saving current: ./myckpt/Video_Games/Jan-11-2026_07-19-d0ed1b_mlm0.3_cl0.5_maskratio0.5_drop0.2_dpcross0.1/best_model.pth
+Sun 11 Jan 2026 17:30:59 INFO  [Epoch 10] Val Result: {'recall@5': 0.06640847597138093, 'ndcg@5': 0.04206528001192294, 'recall@10': 0.10611848631307909, 'ndcg@10': 0.05483106087089473}
+Sun 11 Jan 2026 18:35:58 INFO  [Epoch 11] training [time: 3898.15s, loss: 8.7505, mlm_loss: 4.1843, rec_loss: 7.4479, cl_loss: 0.0947, ]
+Sun 11 Jan 2026 18:38:40 INFO  [Epoch 11] Saving current: ./myckpt/Video_Games/Jan-11-2026_07-19-d0ed1b_mlm0.3_cl0.5_maskratio0.5_drop0.2_dpcross0.1/best_model.pth
+Sun 11 Jan 2026 18:38:40 INFO  [Epoch 11] Val Result: {'recall@5': 0.06762204259091197, 'ndcg@5': 0.04273620965427667, 'recall@10': 0.10813406217682194, 'ndcg@10': 0.05573367936961751}
+Sun 11 Jan 2026 19:43:30 INFO  [Epoch 12] training [time: 3890.08s, loss: 8.7346, mlm_loss: 4.1753, rec_loss: 7.4344, cl_loss: 0.0952, ]
+Sun 11 Jan 2026 19:46:11 INFO  [Epoch 12] Val Result: {'recall@5': 0.06740043477343238, 'ndcg@5': 0.04285362212469381, 'recall@10': 0.1070049175829974, 'ndcg@10': 0.05560252760180782}
+Sun 11 Jan 2026 20:51:14 INFO  [Epoch 13] training [time: 3903.32s, loss: 8.7200, mlm_loss: 4.1676, rec_loss: 7.4221, cl_loss: 0.0951, ]
+Sun 11 Jan 2026 20:53:58 INFO  [Epoch 13] Val Result: {'recall@5': 0.06747430404592558, 'ndcg@5': 0.042298682454969296, 'recall@10': 0.10730039467297017, 'ndcg@10': 0.0551111344272823}
+Sun 11 Jan 2026 21:58:41 INFO  [Epoch 14] training [time: 3883.18s, loss: 8.7058, mlm_loss: 4.1599, rec_loss: 7.4103, cl_loss: 0.0950, ]
+Sun 11 Jan 2026 22:01:22 INFO  [Epoch 14] Val Result: {'recall@5': 0.06728435448808594, 'ndcg@5': 0.042307552255356574, 'recall@10': 0.10676220425909119, 'ndcg@10': 0.05499132521794422}
+Sun 11 Jan 2026 23:06:14 INFO  [Epoch 15] training [time: 3892.34s, loss: 8.6923, mlm_loss: 4.1538, rec_loss: 7.3985, cl_loss: 0.0952, ]
+Sun 11 Jan 2026 23:08:54 INFO  [Epoch 15] Val Result: {'recall@5': 0.0684346045883371, 'ndcg@5': 0.042897045288089256, 'recall@10': 0.10813406217682194, 'ndcg@10': 0.055666212034880626}
+Mon 12 Jan 2026 00:13:51 INFO  [Epoch 16] training [time: 3897.29s, loss: 8.6824, mlm_loss: 4.1513, rec_loss: 7.3895, cl_loss: 0.0949, ]
+Mon 12 Jan 2026 00:16:31 INFO  [Epoch 16] Saving current: ./myckpt/Video_Games/Jan-11-2026_07-19-d0ed1b_mlm0.3_cl0.5_maskratio0.5_drop0.2_dpcross0.1/best_model.pth
+Mon 12 Jan 2026 00:16:31 INFO  [Epoch 16] Val Result: {'recall@5': 0.06827631329013739, 'ndcg@5': 0.04307902109308207, 'recall@10': 0.10775416306114265, 'ndcg@10': 0.055796805959396886}
+Mon 12 Jan 2026 01:21:14 INFO  [Epoch 17] training [time: 3883.79s, loss: 8.6720, mlm_loss: 4.1456, rec_loss: 7.3809, cl_loss: 0.0950, ]
+Mon 12 Jan 2026 01:23:54 INFO  [Epoch 17] Saving current: ./myckpt/Video_Games/Jan-11-2026_07-19-d0ed1b_mlm0.3_cl0.5_maskratio0.5_drop0.2_dpcross0.1/best_model.pth
+Mon 12 Jan 2026 01:23:54 INFO  [Epoch 17] Val Result: {'recall@5': 0.06793862518731136, 'ndcg@5': 0.04302123096290339, 'recall@10': 0.10865114708427429, 'ndcg@10': 0.056116276955041476}
