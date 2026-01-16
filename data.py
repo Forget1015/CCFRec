@@ -42,7 +42,7 @@ def load_split_data(args):
     return item2id, n_items, train_seq, valid_seq, test_seq
 
 
-class CCFSeqSplitDataset(Dataset):
+class MGFSSeqSplitDataset(Dataset):
     def __init__(self, args, n_items, inter_seq, index, mode="train"):
         self.n_items = n_items  # no padding
         self.args = args

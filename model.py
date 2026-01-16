@@ -123,12 +123,12 @@ class MultiScaleFrequencyFusion(nn.Module):
         return self.layer_norm(x + fused * 0.1)
 
 
-class CCFRec(SeqBaseModel):
+class MGFSRec(SeqBaseModel):
     """
-    CCFRec模型 - last_session_repr和attended_output使用简单相加替代门控
+    MGFSRec模型 - last_session_repr和attended_output使用简单相加替代门控
     """
     def __init__(self, args, dataset, index, device):
-        super(CCFRec, self).__init__()
+        super(MGFSRec, self).__init__()
         # load parameters info
         self.n_layers = args.n_layers
         self.n_layers_cross = args.n_layers_cross

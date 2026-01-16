@@ -5,10 +5,10 @@ import torch
 import random
 import numpy as np
 from data import load_split_data
-from data import CCFSeqSplitDataset, Collator
+from data import MGFSSeqSplitDataset, Collator
 from torch.utils.data import DataLoader
-from model import CCFRec
-from trainer import CCFTrainer
+from model import MGFSRec
+from trainer import MGFSTrainer
 from utils import init_logger, init_seed, get_local_time, log, get_file_name, load_json, combine_index
 from logging import getLogger
 from sklearn.decomposition import PCA
@@ -90,9 +90,9 @@ if __name__=="__main__":
     item2id, n_items, train, val, test = load_split_data(args)
     index = load_json(os.path.join(dataset_path, dataset + args.text_index_path))
 
-    train_dataset = CCFSeqSplitDataset(args, n_items, train, index, 'train')
-    val_dataset = CCFSeqSplitDataset(args, n_items, val, index, 'val')
-    test_dataset = CCFSeqSplitDataset(args, n_items, test, index, 'test')
+    train_dataset = MGFSSeqSplitDataset(args, n_items, train, index, 'train')
+    val_dataset = MGFSSeqSplitDataset(args, n_items, val, index, 'val')
+    test_dataset = MGFSSeqSplitDataset(args, n_items, test, index, 'test')
     collator = Collator(args)
 
     train_data_loader = DataLoader(train_dataset, num_workers=args.num_workers, collate_fn=collator,
@@ -116,12 +116,12 @@ if __name__=="__main__":
     args.text_embedding_size = text_embs[0].shape[-1]
 
 
-    model = CCFRec(args, train_dataset, index, device).to(device)
+    model = MGFSRec(args, train_dataset, index, device).to(device)
 
     for i in range(len(args.text_types)):
         model.item_text_embedding[i].weight.data[1:] = torch.tensor(text_embs[i], dtype=torch.float32, device=device)
 
-    trainer = CCFTrainer(args, model, train_data_loader, val_data_loader, test_data_loader, device)
+    trainer = MGFSTrainer(args, model, train_data_loader, val_data_loader, test_data_loader, device)
 
     if args.resume:
         trainer.resume_from_checkpoint(args.resume)

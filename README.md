@@ -1,4 +1,4 @@
-# CCFRec
+# MGFSRec
 
 This is the official PyTorch implementation for the paper:
 
@@ -8,7 +8,7 @@ This is the official PyTorch implementation for the paper:
 
 ## Overview
 
-We propose **CCFRec**,  a novel **C**ode-based textual and **C**ollaborative semantic **F**usion method for sequential **Rec**ommendation. The key idea behind our approach is to bridge the gap between textual and collaborative information using semantic codes. Specifically, we generate fine-grained semantic codes from multi-view text embeddings through vector quantization techniques. Subsequently, we develop a code-guided semantic-fusion module based on the cross-attention mechanism to flexibly extract and integrate relevant information from text representations. In order to further enhance the fusion of textual and collaborative semantics, we introduce an optimization strategy that employs code masking with two specific objectives: masked code modeling and masked sequence alignment. The merit of these objectives lies in leveraging mask prediction tasks and augmented item representations to capture code correlations within individual items and enhance the sequence modeling of the recommendation backbone.
+We propose **MGFSRec**,  a novel **C**ode-based textual and **C**ollaborative semantic **F**usion method for sequential **Rec**ommendation. The key idea behind our approach is to bridge the gap between textual and collaborative information using semantic codes. Specifically, we generate fine-grained semantic codes from multi-view text embeddings through vector quantization techniques. Subsequently, we develop a code-guided semantic-fusion module based on the cross-attention mechanism to flexibly extract and integrate relevant information from text representations. In order to further enhance the fusion of textual and collaborative semantics, we introduce an optimization strategy that employs code masking with two specific objectives: masked code modeling and masked sequence alignment. The merit of these objectives lies in leveraging mask prediction tasks and augmented item representations to capture code correlations within individual items and enhance the sequence modeling of the recommendation backbone.
 
 ## Dependency
 Please install required packages via `pip install -r requirements.txt`
@@ -136,7 +136,7 @@ python main.py \
     --hidden_size=512\
     --early_stop=100\
     --log_dir="./logs/Video_Games/傅里叶_分层"\
-    --resume="/home/yejinxuan/yejinxuan/CCFRec/myckpt/Video_Games/Jan-11-2026_02-18-e18370_mlm0.3_cl0.5_maskratio0.5_drop0.2_dpcross0.1/best_model.pth"\
+    --resume="/home/yejinxuan/yejinxuan/MGFSRec/myckpt/Video_Games/Jan-11-2026_02-18-e18370_mlm0.3_cl0.5_maskratio0.5_drop0.2_dpcross0.1/best_model.pth"\
     --device=cuda:1
 
 
@@ -209,7 +209,7 @@ python visualize_fdfe.py \
     --hidden_size=512\
     --early_stop=100\
     --log_dir="./logs/Baby_Products/傅里叶_分层"\
-    --ckpt_path /home/yejinxuan/yejinxuan/CCFRec/myckpt/Baby_Products/Jan-10-2026_02-51-36f8d3_mlm0.3_cl0.5_maskratio0.5_drop0.2_dpcross0.2/best_model.pth \
+    --ckpt_path /home/yejinxuan/yejinxuan/MGFSRec/myckpt/Baby_Products/Jan-10-2026_02-51-36f8d3_mlm0.3_cl0.5_maskratio0.5_drop0.2_dpcross0.2/best_model.pth \
     --device=cuda:1\
     --sample_idx 0 \
     --save_path ./fdfe_visualization.png
@@ -220,7 +220,7 @@ python visualize_fdfe.py \
 
 If you find our research valuable, please consider citing it as follows:
 ```
-@inproceedings{ccfrec,
+@inproceedings{mgfsrec,
 author = {Liu, Enze and Zheng, Bowen and Zhao, Wayne Xin and Wen, Ji-Rong},
 title = {Bridging Textual-Collaborative Gap through Semantic Codes for Sequential Recommendation},
 year = {2025},

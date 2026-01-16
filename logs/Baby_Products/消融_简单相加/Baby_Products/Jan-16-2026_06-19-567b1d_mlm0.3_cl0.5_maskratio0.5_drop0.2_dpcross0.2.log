@@ -86,3 +86,5 @@ Fri 16 Jan 2026 13:16:24 INFO  [Epoch 4] training [time: 4759.44s, loss: 9.6596,
 Fri 16 Jan 2026 13:21:03 INFO  [Epoch 4] Saving current: ./myckpt/Baby_Products/Jan-16-2026_06-19-567b1d_mlm0.3_cl0.5_maskratio0.5_drop0.2_dpcross0.2/best_model.pth
 Fri 16 Jan 2026 13:21:03 INFO  [Epoch 4] Val Result: {'recall@5': 0.028485777008429667, 'ndcg@5': 0.018328163602810598, 'recall@10': 0.04535837694078009, 'ndcg@10': 0.02373628634651977}
 Fri 16 Jan 2026 14:40:20 INFO  [Epoch 5] training [time: 4756.20s, loss: 9.6064, mlm_loss: 4.4076, rec_loss: 8.2456, cl_loss: 0.0770, ]
+Fri 16 Jan 2026 14:44:58 INFO  [Epoch 5] Saving current: ./myckpt/Baby_Products/Jan-16-2026_06-19-567b1d_mlm0.3_cl0.5_maskratio0.5_drop0.2_dpcross0.2/best_model.pth
+Fri 16 Jan 2026 14:44:58 INFO  [Epoch 5] Val Result: {'recall@5': 0.029003097289374374, 'ndcg@5': 0.018599558566967753, 'recall@10': 0.04657872221890607, 'ndcg@10': 0.024237312124237798}

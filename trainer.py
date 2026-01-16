@@ -326,9 +326,9 @@ class BaseTrainer(object):
         return log(message, self.logger, level=level)
 
 
-class CCFTrainer(BaseTrainer):
+class MGFSTrainer(BaseTrainer):
     def __init__(self, args, model, train_data, valid_data=None, test_data=None, device=None):
-        super(CCFTrainer, self).__init__(args, model, train_data, valid_data, test_data, device)
+        super(MGFSTrainer, self).__init__(args, model, train_data, valid_data, test_data, device)
 
     def _train_epoch(self, epoch_idx, verbose=True):
 
