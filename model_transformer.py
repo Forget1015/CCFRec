@@ -95,6 +95,7 @@ class FrequencyAttention(nn.Module):
         
         return self.layer_norm(x + self.dropout(enhanced * 0.1))
 
+
 class MultiScaleFrequencyFusion(nn.Module):
     def __init__(self, hidden_size, num_scales=3):
         super().__init__()
@@ -125,7 +126,7 @@ class MultiScaleFrequencyFusion(nn.Module):
 
 class CCFRec(SeqBaseModel):
     """
-    CCFRec模型 - last_session_repr和attended_output使用简单相加替代门控
+    CCFRec模型 - Inter-session使用Transformer替代BiLSTM
     """
     def __init__(self, args, dataset, index, device):
         super(CCFRec, self).__init__()
@@ -204,32 +205,35 @@ class CCFRec(SeqBaseModel):
         self.intra_layer_norm = nn.LayerNorm(self.embedding_size, eps=self.layer_norm_eps)
         self.intra_dropout = nn.Dropout(self.hidden_dropout_prob)
         
-        # Inter-session: 使用BiLSTM（参考DSIN）
-        self.inter_lstm = nn.LSTM(
-            input_size=self.embedding_size,
-            hidden_size=self.embedding_size // 2,
-            num_layers=1,
-            batch_first=True,
-            bidirectional=True,
-            dropout=0.0
+        # ============================================================
+        # Inter-session: 使用Transformer替代BiLSTM
+        # ============================================================
+        self.inter_transformer = Transformer(
+            n_layers=self.n_layers,  # 可以根据需要调整层数
+            n_heads=self.n_heads,
+            hidden_size=self.embedding_size,
+            inner_size=self.hidden_size,
+            hidden_dropout_prob=self.hidden_dropout_prob,
+            attn_dropout_prob=self.attn_dropout_prob,
+            hidden_act=self.hidden_act,
+            layer_norm_eps=self.layer_norm_eps,
         )
         self.inter_layer_norm = nn.LayerNorm(self.embedding_size, eps=self.layer_norm_eps)
         self.inter_dropout = nn.Dropout(self.hidden_dropout_prob)
+        # ============================================================
         
         # Session-level position embedding
-        self.session_position_embedding = nn.Embedding(self.max_seq_length, self.embedding_size)
-        
-        # Session-level position embedding（session的位置）
         self.session_position_embedding = nn.Embedding(self.max_seq_length, self.embedding_size)
         
         # Session Interest Activation（参考DSIN）
         self.session_attention_w = nn.Linear(self.embedding_size * 2, self.embedding_size)
         self.session_attention_v = nn.Linear(self.embedding_size, 1, bias=False)
         
-        # ============================================================
-        # 移除门控机制，改用简单相加后的LayerNorm
-        # ============================================================
-        self.output_layer_norm = nn.LayerNorm(self.embedding_size, eps=self.layer_norm_eps)
+        # 残差连接
+        self.residual_gate = nn.Sequential(
+            nn.Linear(self.embedding_size * 2, self.embedding_size),
+            nn.Sigmoid()
+        )
         #--------------------------------------------------------
         self.loss_fct = nn.CrossEntropyLoss(ignore_index=-100)
 
@@ -300,14 +304,31 @@ class CCFRec(SeqBaseModel):
             
         return item_emb_sessions, user_sess_count, sess_item_lens
     
+    def _get_inter_session_mask(self, user_sess_count, max_sess_count, device):
+        """
+        生成inter-session Transformer的attention mask
+        使用causal mask，每个session只能看到之前的session
+        """
+        B = user_sess_count.size(0)
+        # 创建有效session的mask
+        positions = torch.arange(max_sess_count, device=device).unsqueeze(0).expand(B, -1)
+        valid_mask = positions < user_sess_count.unsqueeze(1)  # [B, max_sess]
+        
+        # 创建causal attention mask
+        attention_mask = valid_mask.unsqueeze(1).unsqueeze(2)  # [B, 1, 1, max_sess]
+        attention_mask = torch.tril(attention_mask.expand(-1, -1, max_sess_count, -1))  # [B, 1, max_sess, max_sess]
+        attention_mask = torch.where(attention_mask, 0.0, -10000.0)
+        
+        return attention_mask
+    
     def _hierarchical_transformer(self, item_emb, session_ids, item_seq_len):
         """
         改进版层级Transformer:
         1. BiasEncoding: session偏置 + 位置偏置 + 维度偏置（参考DSIN）
         2. Intra-session: Transformer提取session内兴趣
-        3. Inter-session: BiLSTM建模session间时序关系
+        3. Inter-session: Transformer建模session间关系（替代BiLSTM）
         4. Session Attention: 用target对session做attention激活
-        5. 简单相加: last_session_repr + attended_output（替代门控）
+        5. Residual: 残差连接保留最后session信息
         """
         B, L, H = item_emb.shape
         device = item_emb.device
@@ -351,17 +372,14 @@ class CCFRec(SeqBaseModel):
         sess_pos_emb = self.session_position_embedding(sess_pos_ids)
         session_repr = session_repr + sess_pos_emb
         
-        # 6. Inter-session: BiLSTM
-        packed_input = nn.utils.rnn.pack_padded_sequence(
-            session_repr, 
-            user_sess_count.cpu().clamp(min=1), 
-            batch_first=True, 
-            enforce_sorted=False
-        )
-        packed_output, _ = self.inter_lstm(packed_input)
-        inter_output, _ = nn.utils.rnn.pad_packed_sequence(packed_output, batch_first=True, total_length=max_sess_count)
-        inter_output = self.inter_layer_norm(inter_output)
-        inter_output = self.inter_dropout(inter_output)
+        # ============================================================
+        # 6. Inter-session: 使用Transformer替代BiLSTM
+        # ============================================================
+        inter_mask = self._get_inter_session_mask(user_sess_count, max_sess_count, device)
+        inter_input = self.inter_layer_norm(session_repr)
+        inter_input = self.inter_dropout(inter_input)
+        inter_output = self.inter_transformer(inter_input, inter_input, inter_mask)[-1]
+        # ============================================================
         
         # 7. Session Attention Activation（参考DSIN）
         last_sess_idx = (user_sess_count - 1).clamp(min=0).view(-1, 1, 1).expand(-1, -1, H)
@@ -378,11 +396,10 @@ class CCFRec(SeqBaseModel):
         
         attended_output = torch.bmm(attention_weights.unsqueeze(1), inter_output).squeeze(1)
         
-        # ============================================================
-        # 8. 简单相加替代门控机制
-        # ============================================================
-        final_output = last_session_repr + attended_output
-        final_output = self.output_layer_norm(final_output)
+        # 8. 残差连接
+        gate_input = torch.cat([attended_output, last_session_repr], dim=-1)
+        gate = self.residual_gate(gate_input)
+        final_output = gate * last_session_repr + (1 - gate) * attended_output
         
         return final_output
     

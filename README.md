@@ -86,7 +86,6 @@ python main.py \
     --hidden_size=512\
     --early_stop=100\
     --log_dir="./logs/傅里叶_分层"\
-    --resume="/home/yejinxuan/yejinxuan/CCFRec/myckpt/Musical_Instruments/Jan-05-2026_09-38-e79620_mlm0.6_cl0.4_maskratio0.5_drop0.3_dpcross0.3/best_model.pth"\
     --device=cuda:1
 
 
@@ -154,17 +153,41 @@ python main.py \
     --code_level=20 \
     --n_codes_per_lel=256 \
     --max_his_len=50 \
-    --batch_size=120 \
+    --batch_size=110 \
     --dropout_prob=0.4 \
     --dropout_prob_cross=0.1 \
     --n_layers=2 \
     --n_heads=2 \
     --embedding_size=128 \
-    --hidden_size=512
+    --hidden_size=512\
     --early_stop=100\
-    --log_dir="./logs/Industrial_and_Scientific/傅里叶_分层"\
+    --log_dir="./logs/Industrial_and_Scientific/消融_无傅里叶"\
     --device=cuda:1
 python main.py \
+    --dataset=Baby_Products \
+    --lr=0.0005 \
+    --neg_num=25000 \
+    --text_types title brand features categories description \
+    --mask_ratio=0.5 \
+    --cl_weight=0.5 \
+    --mlm_weight=0.3 \
+    --data_path=./dataset \
+    --text_index_path=.code.pq.20_256.pca128.title_brand_features_categories_description.json \
+    --code_level=20 \
+    --n_codes_per_lel=256 \
+    --max_his_len=50 \
+    --batch_size=110 \
+    --dropout_prob=0.2 \
+    --dropout_prob_cross=0.2 \
+    --n_layers=2 \
+    --n_heads=2 \
+    --embedding_size=128 \
+    --hidden_size=512\
+    --early_stop=100\
+    --log_dir="./logs/Baby_Products/消融_简单相加"\
+    --device=cuda:1
+
+python visualize_fdfe.py \
     --dataset=Baby_Products \
     --lr=0.0005 \
     --neg_num=25000 \
@@ -186,8 +209,10 @@ python main.py \
     --hidden_size=512\
     --early_stop=100\
     --log_dir="./logs/Baby_Products/傅里叶_分层"\
-    --resume="/home/yejinxuan/yejinxuan/CCFRec/myckpt/Baby_Products/Jan-09-2026_06-21-987816_mlm0.3_cl0.5_maskratio0.5_drop0.2_dpcross0.2/best_model.pth"\
-    --device=cuda:1
+    --ckpt_path /home/yejinxuan/yejinxuan/CCFRec/myckpt/Baby_Products/Jan-10-2026_02-51-36f8d3_mlm0.3_cl0.5_maskratio0.5_drop0.2_dpcross0.2/best_model.pth \
+    --device=cuda:1\
+    --sample_idx 0 \
+    --save_path ./fdfe_visualization.png
 ```
 
 
