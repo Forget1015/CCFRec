@@ -70,3 +70,9 @@ Sat 17 Jan 2026 02:38:35 INFO  MGFSRec(
   (output_layer_norm): LayerNorm((128,), eps=1e-12, elementwise_affine=True)
   (loss_fct): CrossEntropyLoss()
 )
+Sat 17 Jan 2026 03:17:23 INFO  [Epoch 0] training [time: 2327.63s, loss: 12.7085, mlm_loss: 5.7716, rec_loss: 9.0129, cl_loss: 0.5816, ]
+Sat 17 Jan 2026 03:19:03 INFO  [Epoch 0] Saving current: ./myckpt/Musical_Instruments/Jan-17-2026_02-38-8abd51_mlm0.6_cl0.4_maskratio0.5_drop0.3_dpcross0.3/best_model.pth
+Sat 17 Jan 2026 03:19:03 INFO  [Epoch 0] Val Result: {'recall@5': 0.03495882588485175, 'ndcg@5': 0.022958646904249813, 'recall@10': 0.05529344173819182, 'ndcg@10': 0.029483623235167858}
+Sat 17 Jan 2026 03:57:16 INFO  [Epoch 1] training [time: 2293.89s, loss: 11.5974, mlm_loss: 4.7895, rec_loss: 8.6320, cl_loss: 0.2292, ]
+Sat 17 Jan 2026 03:58:58 INFO  [Epoch 1] Saving current: ./myckpt/Musical_Instruments/Jan-17-2026_02-38-8abd51_mlm0.6_cl0.4_maskratio0.5_drop0.3_dpcross0.3/best_model.pth
+Sat 17 Jan 2026 03:58:58 INFO  [Epoch 1] Val Result: {'recall@5': 0.03828409268963596, 'ndcg@5': 0.024483314915456657, 'recall@10': 0.060081129546127196, 'ndcg@10': 0.03148407282467583}
